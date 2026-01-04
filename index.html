@@ -6,42 +6,43 @@
         body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; overflow: hidden; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 15px; height: 95vh; }
         .card { background: #111; border: 2px solid #333; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px; }
-        .active { border-color: gold; background: #222; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
-        .img-container { width: 100%; height: 60%; display: flex; justify-content: center; align-items: center; }
-        img { max-width: 95%; max-height: 95%; object-fit: contain; }
-        .name { font-size: 1.8vw; font-weight: bold; text-align: center; }
+        .active { border-color: gold; background: #222; }
+        .img-container { width: 100%; height: 55%; display: flex; justify-content: center; align-items: center; }
+        img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .name { font-size: 1.8vw; font-weight: bold; text-align: center; color: #eee; }
         .price { font-size: 2.5vw; color: gold; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="board" class="grid">Синхронизация с таблицей...</div>
+    <div id="board" class="grid">Загрузка...</div>
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
         async function update() {
             try {
-                // Добавляем случайное число к ссылке, чтобы убить кэш браузера
-                const response = await fetch(sheetUrl + "&nocache=" + Math.random());
-                const data = await response.text();
+                const res = await fetch(sheetUrl + "&z=" + Math.random());
+                const text = await res.text();
+                // Простейший разбор строк без лишних сложностей
+                const rows = text.split('\n').map(r => r.split(','));
                 
-                // Разбиваем строки, учитывая возможные кавычки (защита от запятых)
-                const rows = data.split(/\r?\n/).map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-
                 let html = "";
+                // Берем строго строки со 2-й по 13-ю (индексы 1-12)
                 for (let i = 1; i <= 12; i++) {
-                    if (rows[i] && rows[i][1]) {
-                        const n = rows[i][1].replace(/"/g, "").trim();
-                        const p = rows[i][2].replace(/"/g, "").trim();
-                        const img = rows[i][3] ? rows[i][3].replace(/"/g, "").trim() : "";
+                    const row = rows[i];
+                    if (row && row.length >= 2) {
+                        const name = (row[1] || "").replace(/"/g, "");
+                        const price = (row[2] || "").replace(/"/g, "");
+                        const img = (row[3] || "").replace(/"/g, "").trim();
+                        
                         html += `<div class="card" id="c${i}">
-                            <div class="img-container"><img src="${img}" onerror="this.style.opacity='0'"></div>
-                            <div class="name">${n}</div>
-                            <div class="price">${p} €</div>
+                            <div class="img-container"><img src="${img}" onerror="this.parentElement.style.display='none'"></div>
+                            <div class="name">${name}</div>
+                            <div class="price">${price} €</div>
                         </div>`;
                     }
                 }
                 document.getElementById("board").innerHTML = html;
-            } catch (err) { console.log("Сбой сети"); }
+            } catch (e) { console.error("Ошибка сети"); }
         }
 
         let cur = 1;
@@ -51,12 +52,12 @@
                 cards.forEach(c => c.classList.remove('active'));
                 const a = document.getElementById('c' + cur);
                 if (a) a.classList.add('active');
-                cur = cur >= cards.length ? 1 : cur + 1;
+                cur = (cur % cards.length) + 1;
             }
         }, 4000);
 
         update();
-        setInterval(update, 20000); // Проверять таблицу каждые 20 секунд
+        setInterval(update, 30000); // Проверка таблицы каждые 30 сек
     </script>
 </body>
 </html>
