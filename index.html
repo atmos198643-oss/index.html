@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        :root { --angle: 0deg; --neon: #00d2ff; }
+        :root { --angle: 0deg; --neon-blue: #00d2ff; --clock-yellow: #ffcc00; }
 
         body {
             margin: 0; padding: 0; background: #000; color: white;
@@ -11,93 +11,121 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* Мягкая радужная змейка */
+        /* Широкая радужная змейка по самому краю */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 5px;
+            content: ""; position: absolute; inset: 0; padding: 10px;
             background: conic-gradient(
                 from var(--angle),
-                transparent 0%, 
-                rgba(255, 0, 0, 0.5), rgba(0, 210, 255, 0.5), rgba(0, 255, 204, 0.5),
-                transparent 50%
+                transparent 0%, #ff0000, #ffff00, #00ffcc, #00d2ff, #0000ff, transparent 50%
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            animation: rotate 6s linear infinite; /* Замедленная скорость */
-            pointer-events: none;
+            filter: blur(3px); animation: rotate 4s linear infinite;
+            z-index: 9999; pointer-events: none;
         }
 
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Дизайнерская шапка */
+        /* Шапка с огромными часами */
         .header {
-            height: 12vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; background: rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(0, 210, 255, 0.3); z-index: 10;
+            height: 16vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 60px; background: rgba(255,255,255,0.03);
+            border-bottom: 2px solid rgba(255,255,255,0.1); z-index: 10;
         }
 
-        .header-left { font-size: 2.5vw; font-weight: 800; color: var(--neon); letter-spacing: 2px; }
-        .header-center { font-size: 4vw; font-weight: 900; letter-spacing: 5px; color: #fff; }
-        .header-right { text-align: right; color: #ccc; font-size: 1.5vw; }
+        .header-left { width: 15%; } /* Баланс */
 
-        /* Сетка */
+        .header-center { 
+            width: 50%; text-align: center; font-size: 5.8vw; font-weight: 900; 
+            letter-spacing: 8px; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+
+        .header-right { 
+            width: 35%; text-align: right; display: flex; flex-direction: column; justify-content: center;
+        }
+
+        #clock { 
+            font-size: 5vw; font-weight: 900; color: var(--clock-yellow); 
+            line-height: 1; text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+        }
+
+        #date { 
+            font-size: 1.6vw; color: #ffffff; font-weight: 600; 
+            text-transform: uppercase; margin-top: 5px; letter-spacing: 1px;
+        }
+
+        /* Сетка на 50 ячеек */
         .grid-container {
             flex-grow: 1; display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px; padding: 20px; overflow: hidden;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 10px; padding: 20px 40px; overflow: hidden;
+            align-content: start;
         }
 
         .card { 
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px; display: flex; align-items: center; padding: 10px;
-            height: 90px; transition: 0.5s;
+            height: 85px; transition: 0.4s;
         }
 
         .active { 
-            background: rgba(0, 210, 255, 0.15); border-color: var(--neon);
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3); transform: scale(1.04);
+            background: rgba(255, 255, 255, 0.12); border-color: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2); transform: scale(1.04);
         }
 
-        .img-box { width: 80px; height: 80px; min-width: 80px; background: #000; border-radius: 8px; margin-right: 15px; display: flex; justify-content: center; align-items: center; }
-        img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .img-box { width: 75px; height: 75px; min-width: 75px; background: #000; border-radius: 8px; margin-right: 15px; display: flex; justify-content: center; align-items: center; }
+        img { max-width: 85%; max-height: 85%; object-fit: contain; }
 
-        .name { font-size: 1.1vw; color: #eee; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 1.6vw; color: #00ffcc; font-weight: bold; }
+        .info { flex-grow: 1; overflow: hidden; }
+        .name { font-size: 1vw; font-weight: 600; color: #ddd; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 1.6vw; color: #00ffcc; font-weight: 900; }
 
-        /* Новостная строка */
+        /* Белая новостная строка */
         .news-ticker {
-            height: 5vh; background: var(--neon); color: #000;
-            display: flex; align-items: center; font-weight: bold; overflow: hidden;
+            height: 7vh; background: #fff; color: #000;
+            display: flex; align-items: center; overflow: hidden;
+            position: relative; z-index: 5; margin-bottom: 4px;
         }
-        .ticker-wrap { display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite; }
+        .ticker-wrap { 
+            display: inline-block; white-space: nowrap; 
+            font-size: 2vw; font-weight: 800; animation: ticker 30s linear infinite; 
+        }
         @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="header-left">ΑΓΓΕΛΙΕΣ</div>
-    <div class="header-center">AGILIS</div>
-    <div id="clock" class="header-right">00:00:00</div>
+    <div class="header-left"></div>
+    <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
+    <div class="header-right">
+        <div id="clock">00:00</div>
+        <div id="date">ΔΕΥΤΕΡΑ, 1 ΙΑΝΟΥΑΡΙΟΥ</div>
+    </div>
 </div>
 
 <div id="board" class="grid-container"></div>
 
 <div class="news-ticker">
     <div class="ticker-wrap">
-        Καλώς ήρθατε στο AGILIS • Τελευταίες προσφορές και νέα της αγοράς • Επικοινωνήστε μαζί μας για διαφήμιση • 
+        ΚΑΛΩΣ ΗΡΘΑΤΕ ΣΤΙΣ ΑΓΓΕΛΙΕΣ • ΔΕΙΤΕ ΤΙΣ ΤΕΛΕΥΤΑΙΕΣ ΠΡΟΣΦΟΡΕΣ • ΕΠΙΚΟΙΝΩΝΗΣΤΕ ΜΑΖΙ ΜΑΣ ΓΙΑ ΤΗ ΔΙΚΗ ΣΑΣ ΔΙΑΦΗΜΙΣΗ • 
     </div>
 </div>
 
 <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
-    function updateClock() {
+    function updateTime() {
         const now = new Date();
-        document.getElementById('clock').innerHTML = now.toLocaleTimeString('el-GR') + "<br>" + now.toLocaleDateString('el-GR');
+        document.getElementById('clock').innerText = now.toLocaleTimeString('el-GR', {hour: '2-digit', minute:'2-digit'});
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('date').innerText = now.toLocaleDateString('el-GR', options);
     }
-    setInterval(updateClock, 1000);
+    setInterval(updateTime, 1000);
+    updateTime();
 
     async function update() {
         try {
@@ -106,12 +134,12 @@
             const rows = text.split('\n').map(r => r.split(','));
             
             let html = "";
-            for (let i = 1; i <= 48; i++) {
-                let name = "Διαθέσιμος χώρος"; // Свободное место
+            for (let i = 1; i <= 50; i++) {
+                let name = "Διαθέσιμος χώρος";
                 let price = "--";
                 let img = "https://via.placeholder.com/80/111/333?text=Agilis";
 
-                if (rows[i] && rows[i][1]) {
+                if (rows[i] && rows[i][1] && rows[i][1].trim() !== "") {
                     name = rows[i][1].replace(/"/g, '');
                     price = rows[i][2]?.replace(/"/g, '') || "0";
                     img = rows[i][3]?.replace(/"/g, '').trim() || img;
@@ -127,7 +155,7 @@
                 </div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.log("Error"); }
+        } catch (e) { console.log("Re-sync..."); }
     }
 
     let cur = 1;
@@ -138,7 +166,7 @@
             const target = document.getElementById('c' + cur);
             if (target) { target.classList.add('active'); cur++; } else { cur = 1; }
         }
-    }, 4000);
+    }, 3500);
 
     update();
     setInterval(update, 60000);
