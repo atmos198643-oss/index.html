@@ -3,61 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 10px; overflow: hidden; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 15px; height: 95vh; }
-        .card { background: #111; border: 2px solid #333; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 10px; }
-        .active { border-color: gold; background: #222; }
-        .img-container { width: 100%; height: 55%; display: flex; justify-content: center; align-items: center; }
+        /* Общие настройки экрана */
+        body { background-color: #000 !important; color: white; font-family: sans-serif; margin: 0; padding: 15px; overflow: hidden; }
+        
+        /* Сетка объявлений */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr); gap: 20px; height: 90vh; }
+        
+        /* Сама карточка товара */
+        .card { 
+            background-color: #1a1a1a; /* ЦВЕТ ФОНА ОБЪЯВЛЕНИЯ */
+            border: 2px solid #444; 
+            border-radius: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-around; 
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        /* Цвет фона активного объявления */
+        .active { border-color: #ffcc00; background-color: #333; box-shadow: 0 0 15px rgba(255,204,0,0.4); }
+
+        .img-container { width: 100%; height: 50%; display: flex; justify-content: center; align-items: center; background: #000; border-radius: 8px; }
         img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .name { font-size: 1.8vw; font-weight: bold; text-align: center; color: #eee; }
-        .price { font-size: 2.5vw; color: gold; font-weight: bold; }
+        .name { font-size: 1.5vw; font-weight: bold; text-align: center; margin-top: 10px; }
+        .price { font-size: 2vw; color: #ffcc00; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="board" class="grid">Загрузка...</div>
+    <div id="board" class="grid">Синхронизация...</div>
+
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
         async function update() {
             try {
-                const res = await fetch(sheetUrl + "&z=" + Math.random());
+                const res = await fetch(sheetUrl + "&cache=" + Math.random());
                 const text = await res.text();
-                // Простейший разбор строк без лишних сложностей
-                const rows = text.split('\n').map(r => r.split(','));
+                // Делим на строки и убираем лишние кавычки из Google
+                const rows = text.split('\n').map(r => r.split(',').map(c => c.replace(/"/g, '').trim()));
                 
                 let html = "";
-                // Берем строго строки со 2-й по 13-ю (индексы 1-12)
                 for (let i = 1; i <= 12; i++) {
                     const row = rows[i];
                     if (row && row.length >= 2) {
-                        const name = (row[1] || "").replace(/"/g, "");
-                        const price = (row[2] || "").replace(/"/g, "");
-                        const img = (row[3] || "").replace(/"/g, "").trim();
-                        
+                        const name = row[1] || "Товар";
+                        const price = row[2] || "0.00";
+                        const img = row[3] || "";
                         html += `<div class="card" id="c${i}">
-                            <div class="img-container"><img src="${img}" onerror="this.parentElement.style.display='none'"></div>
+                            <div class="img-container"><img src="${img}" onerror="this.src='https://via.placeholder.com/150?text=No+Photo'"></div>
                             <div class="name">${name}</div>
                             <div class="price">${price} €</div>
                         </div>`;
                     }
                 }
                 document.getElementById("board").innerHTML = html;
-            } catch (e) { console.error("Ошибка сети"); }
+            } catch (e) { console.error("Ошибка"); }
         }
 
         let cur = 1;
         setInterval(() => {
             const cards = document.querySelectorAll('.card');
-            if (cards.length) {
-                cards.forEach(c => c.classList.remove('active'));
-                const a = document.getElementById('c' + cur);
-                if (a) a.classList.add('active');
-                cur = (cur % cards.length) + 1;
-            }
+            if (!cards.length) return;
+            cards.forEach(c => c.classList.remove('active'));
+            const a = document.getElementById('c' + cur);
+            if (a) a.classList.add('active');
+            cur = (cur % cards.length) + 1;
         }, 4000);
 
         update();
-        setInterval(update, 30000); // Проверка таблицы каждые 30 сек
+        setInterval(update, 30000);
     </script>
 </body>
 </html>
