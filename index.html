@@ -11,18 +11,24 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* ШИРОКАЯ РАДУЖНАЯ ЗМЕЙКА ПО САМОМУ КРАЮ */
+        /* УВЕЛИЧЕННАЯ ЗМЕЙКА С ГРАДИЕНТОМ */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 6px;
+            content: ""; position: absolute; inset: 0; padding: 10px; /* Сделал шире */
             background: conic-gradient(
                 from var(--angle),
-                #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000 25%,
-                transparent 40%
+                #ffffff 0deg,      /* Белый нос */
+                #00d2ff 20deg,     /* Голубой */
+                #33ff00 60deg,     /* Зеленый */
+                #ffff00 100deg,    /* Желтый */
+                #ff0000 140deg,    /* Красный */
+                #a000ff 180deg,    /* Фиолетовый */
+                transparent 240deg /* Длинный плавный хвост */
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            animation: rotate 4s linear infinite;
+            filter: blur(1.5px) drop-shadow(0 0 20px rgba(255,255,255,0.4));
+            animation: rotate 5s linear infinite;
             z-index: 1000; pointer-events: none;
         }
 
@@ -30,54 +36,54 @@
         @keyframes rotate { to { --angle: 360deg; } }
 
         .header {
-            height: 8vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; z-index: 10;
+            height: 9vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 50px; z-index: 10;
         }
         .header-center { 
-            font-size: 2.5vw; font-weight: 900; letter-spacing: 8px; 
-            background: linear-gradient(to bottom, #fff, #888);
+            font-size: 2.8vw; font-weight: 900; letter-spacing: 12px; 
+            background: linear-gradient(to bottom, #fff, #999);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        #clock { font-size: 2.5vw; font-weight: 800; color: #fff; }
+        #clock { font-size: 3vw; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
-        /* ПЛОТНАЯ СЕТКА 10x8 (80 ЯЧЕЕК) */
+        /* СЕТКА 10x8 (80 ЯЧЕЕК) */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(10, 1fr); 
             grid-template-rows: repeat(8, 1fr);
-            gap: 2px; /* Минимальный зазор между ячейками */
-            padding: 0 15px 15px 15px;
+            gap: 4px; padding: 0 25px 20px 25px;
             z-index: 5;
         }
 
         .card { 
-            background: rgba(30, 30, 30, 0.9); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(35, 35, 35, 0.85); 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; /* Овальные углы */
             display: flex; align-items: center; 
-            padding: 2px 8px; 
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            padding: 2px 10px; 
+            transition: all 0.9s cubic-bezier(0.2, 1, 0.3, 1);
             position: relative; overflow: hidden;
         }
 
-        /* ЭФФЕКТ УВЕЛИЧЕНИЯ И ВЫПЛЫВАНИЯ */
+        /* ТОНКАЯ ОКАНТОВКА И УВЕЛИЧЕНИЕ */
         .active { 
-            background: #222;
-            border: 2px solid #fff;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 1), 0 0 30px rgba(255, 255, 255, 0.3);
-            transform: scale(2.8); /* Увеличение почти в 3 раза */
+            background: #1a1a1a;
+            border: 1.2px solid rgba(255, 255, 255, 0.8); /* Тонкая рамка */
+            box-shadow: 0 0 80px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.2);
+            transform: scale(2.6);
             z-index: 9999;
-            border-radius: 4px;
+            border-radius: 12px;
         }
 
-        .img-box { width: 30px; height: 20px; background: #000; margin-right: 8px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
-        img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .img-box { width: 35px; height: 25px; background: #000; border-radius: 4px; margin-right: 10px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
+        img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
         .info { display: flex; flex-direction: column; min-width: 0; }
-        .name { font-size: 0.65vw; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 0.85vw; color: #00ffcc; font-weight: 800; }
+        .name { font-size: 0.7vw; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 0.9vw; color: #00ffcc; font-weight: 800; }
 
-        .active .name { white-space: normal; color: #fff; font-size: 0.5vw; line-height: 1.1; }
-        .active .price { font-size: 0.7vw; }
+        .active .name { white-space: normal; color: #fff; font-size: 0.6vw; line-height: 1.1; }
+        .active .price { font-size: 0.8vw; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -107,16 +113,16 @@
             const rows = text.split('\n').map(r => r.split(','));
             let html = "";
             for (let i = 1; i <= 80; i++) {
-                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/30/111";
+                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/35/111/333?text=Logo";
                 if (rows[i] && rows[i][1]) {
-                    name = rows[i][1].replace(/"/g, '');
-                    price = rows[i][2]?.replace(/"/g, '') || "0";
-                    img = rows[i][3]?.replace(/"/g, '') || img;
+                    name = rows[i][1].replace(/"/g, '').trim();
+                    price = rows[i][2]?.replace(/"/g, '').trim() || "0";
+                    img = rows[i][3]?.replace(/"/g, '').trim() || img;
                 }
                 html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) {}
+        } catch (e) { console.error("Error CSV"); }
     }
 
     function highlightRandom() {
@@ -132,25 +138,22 @@
 
         target.classList.add('active');
 
-        // ЛОГИКА ПЛАВНОГО СМЕЩЕНИЯ К ЦЕНТРУ
+        // ВЫПЛЫВАНИЕ К ЦЕНТРУ
         const rect = target.getBoundingClientRect();
-        const winW = window.innerWidth;
-        const winH = window.innerHeight;
-        const centerX = winW / 2;
-        const centerY = winH / 2;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
         const targetX = rect.left + rect.width / 2;
         const targetY = rect.top + rect.height / 2;
 
-        // Вычисляем вектор к центру и сдвигаем на 20% этого расстояния для "выплывания"
-        let moveX = (centerX - targetX) * 0.4;
-        let moveY = (centerY - targetY) * 0.4;
+        let moveX = (centerX - targetX) * 0.45;
+        let moveY = (centerY - targetY) * 0.45;
 
         target.style.translate = `${moveX}px ${moveY}px`;
     }
 
     loadData();
     setInterval(loadData, 60000);
-    setInterval(highlightRandom, 4000);
+    setInterval(highlightRandom, 6000); // Задержка 6 секунд
 </script>
 </body>
 </html>
