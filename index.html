@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        :root { --angle: 0deg; --neon: #00d2ff; }
+        :root { --angle: 0deg; --neon: #00ffcc; } /* Основной акцент на мятный/неон */
 
         body {
             margin: 0; padding: 0; background: #000; color: white;
@@ -11,21 +11,22 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* КЛАССИЧЕСКАЯ ЗМЕЙКА С ХВОСТОМ */
+        /* КЛАССИЧЕСКАЯ РАДУЖНАЯ ЗМЕЙКА БЕЗ ГОЛУБОЙ ОКАНТОВКИ */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 5px;
+            content: ""; position: absolute; inset: 0; padding: 4px;
             background: conic-gradient(
                 from var(--angle),
-                #fff 0deg, 
-                #00d2ff 30deg,
-                #a000ff 80deg,
-                transparent 140deg
+                #ff0000, #ffff00, #00ff00, #ff00ff, #ff0000 30%,
+                transparent 40%
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            filter: blur(1px) drop-shadow(0 0 15px rgba(0, 210, 255, 0.8));
-            box-shadow: inset 0 0 40px rgba(0, 210, 255, 0.4);
+            
+            filter: blur(1px) drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+            /* Пламя внутрь */
+            box-shadow: inset 0 0 35px rgba(255, 255, 255, 0.2);
+            
             animation: rotate 4s linear infinite;
             z-index: 100; pointer-events: none;
         }
@@ -33,77 +34,64 @@
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Шапка */
+        /* Шапка: Логотип + (Часы и Дата) */
         .header {
-            height: 12vh; display: flex; align-items: center; justify-content: space-between;
+            height: 14vh; display: flex; align-items: center; justify-content: space-between;
             padding: 0 60px; z-index: 10;
         }
         .header-center { 
-            font-size: 4.5vw; font-weight: 900; letter-spacing: 15px; 
-            background: linear-gradient(to bottom, #fff, #00d2ff);
+            font-size: 5vw; font-weight: 900; letter-spacing: 12px; 
+            background: linear-gradient(to bottom, #fff, #ccc);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px var(--neon));
         }
-        #clock { font-size: 3.5vw; font-weight: 800; color: #fff; text-shadow: 0 0 10px var(--neon); }
+        .time-box { text-align: right; line-height: 1; }
+        #clock { font-size: 4vw; font-weight: 800; color: #fff; margin-bottom: 5px; }
+        #date { font-size: 1.2vw; color: #888; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* СЕТКА: 8 КОЛОНОК x 5 РЯДОВ (40 ШТУК) */
+        /* СЕТКА: 7 КОЛОНОК x 5 РЯДОВ (35 ШТУК) */
         .grid-container {
             flex-grow: 1; display: grid;
-            grid-template-columns: repeat(8, 1fr); 
+            grid-template-columns: repeat(7, 1fr); 
             grid-template-rows: repeat(5, 1fr);
-            gap: 10px; padding: 5px 30px 25px 30px;
+            gap: 12px; padding: 5px 40px 30px 40px;
             z-index: 5;
         }
 
-        /* ВЫТЯНУТЫЙ ГОРИЗОНТАЛЬНЫЙ ПРЯМОУГОЛЬНИК */
+        /* Вытянутый прямоугольник */
         .card { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; 
-            display: flex; 
-            flex-direction: row; /* Иконка и текст в ряд */
-            align-items: center; 
-            padding: 5px 10px;
-            transition: all 0.5s ease;
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; display: flex; flex-direction: row; 
+            align-items: center; padding: 8px 15px;
+            transition: all 0.5s ease; overflow: hidden;
         }
 
         .active { 
-            background: rgba(0, 210, 255, 0.2); 
-            border-color: #fff;
-            box-shadow: 0 0 20px var(--neon);
-            transform: scale(1.05); z-index: 10;
+            background: rgba(255, 255, 255, 0.15); border-color: #fff;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+            transform: scale(1.06); z-index: 10;
         }
 
-        /* Мини-бокс для логотипа в карточке */
         .img-box { 
-            width: 40px; height: 30px; 
-            background: #000; border-radius: 3px; 
+            width: 50px; height: 35px; background: #000; border-radius: 4px; 
             display: flex; justify-content: center; align-items: center; 
-            margin-right: 10px; flex-shrink: 0;
+            margin-right: 12px; flex-shrink: 0;
         }
         img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
-        .info { 
-            display: flex; flex-direction: column; 
-            justify-content: center; min-width: 0; 
-        }
-
-        .name { 
-            font-size: 0.75vw; color: #ccc; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-        }
-        .price { 
-            font-size: 1.1vw; color: #00ffcc; font-weight: 800; 
-        }
+        .info { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        .name { font-size: 0.85vw; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 1.2vw; color: #00ffcc; font-weight: 800; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="width:20%"></div>
+    <div style="width:25%"></div>
     <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
-    <div style="width:20%; text-align: right;"><div id="clock">00:00</div></div>
+    <div class="time-box">
+        <div id="clock">00:00</div>
+        <div id="date">-- -- --</div>
+    </div>
 </div>
 
 <div id="board" class="grid-container"></div>
@@ -114,6 +102,7 @@
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('el-GR', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('date').innerText = now.toLocaleDateString('el-GR', {weekday: 'long', day: 'numeric', month: 'short'});
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -125,10 +114,10 @@
             const rows = text.split('\n').map(r => r.split(','));
             
             let html = "";
-            for (let i = 1; i <= 40; i++) {
+            for (let i = 1; i <= 35; i++) {
                 let name = "Διαθέσιμο";
                 let price = "--";
-                let img = "https://via.placeholder.com/40/111/333?text=Logo";
+                let img = "https://via.placeholder.com/50/111/333?text=Logo";
 
                 if (rows[i] && rows[i][1] && rows[i][1].trim() !== "") {
                     name = rows[i][1].replace(/"/g, '').trim();
@@ -146,15 +135,15 @@
                 </div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.error("Update error"); }
+        } catch (e) { console.error("CSV Load Error"); }
     }
 
     function highlightRandom() {
         const cards = document.querySelectorAll('.card');
         if (cards.length) {
             cards.forEach(c => c.classList.remove('active'));
-            const randomId = Math.floor(Math.random() * 40) + 1;
-            const target = document.getElementById('c' + randomId);
+            const rnd = Math.floor(Math.random() * 35) + 1;
+            const target = document.getElementById('c' + rnd);
             if (target) target.classList.add('active');
         }
     }
