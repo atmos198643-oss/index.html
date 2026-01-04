@@ -11,7 +11,7 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* ЗМЕЙКА: СТРОГО ПО КРАЮ */
+        /* ЗМЕЙКА: СТРОГО 9px И INSET 0 */
         body::before {
             content: ""; position: absolute; inset: 0; padding: 9px; 
             background: conic-gradient(
@@ -43,6 +43,7 @@
 
         #clock { font-size: 2.2vw; font-weight: 700; color: #a2e9ff; text-shadow: 0 0 10px rgba(162, 233, 255, 0.5); }
 
+        /* СЕТКА: СТРОГО ПРЕЖНИЕ ПАРАМЕТРЫ */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(10, 1fr); 
@@ -57,7 +58,6 @@
             border-radius: 4px; 
             display: flex; align-items: center; 
             padding: 2px 10px; 
-            /* ЗАМЕДЛЕННАЯ АНИМАЦИЯ: 1.8 секунды */
             transition: all 1.8s cubic-bezier(0.34, 1.3, 0.64, 1);
             position: relative; overflow: hidden;
         }
@@ -92,7 +92,7 @@
 
 <div class="header">
     <div style="width:10%"></div>
-    <div class="header-logo">Ψηφιακός Πίνακας Αγγελιών</div>
+    <div class="header-logo">Ψηφιακός Πίνακας Аγγελιών</div>
     <div style="width:15%; text-align: right;"><div id="clock">00:00</div></div>
 </div>
 
@@ -101,6 +101,7 @@
 <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
     let currentActive = null;
+    let isStarted = false;
 
     function updateTime() {
         const now = new Date();
@@ -114,58 +115,77 @@
             const res = await fetch(`${sheetUrl}&v=${Date.now()}`);
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
-            let html = "";
-            for (let i = 1; i <= 80; i++) {
-                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/35/111/333?text=Logo";
-                if (rows[i] && rows[i][1]) {
-                    name = rows[i][1].replace(/"/g, '').trim();
-                    price = rows[i][2]?.replace(/"/g, '').trim() || "0";
-                    img = rows[i][3]?.replace(/"/g, '').trim() || img;
+            
+            const board = document.getElementById("board");
+            
+            // Если сетки еще нет — создаем
+            if (board.children.length === 0) {
+                let html = "";
+                for (let i = 1; i <= 80; i++) {
+                    html += `<div class="card" id="c${i}"><div class="img-box"><img src=""></div><div class="info"><div class="name"></div><div class="price"></div></div></div>`;
                 }
-                html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
+                board.innerHTML = html;
             }
-            document.getElementById("board").innerHTML = html;
-        } catch (e) {}
-    }
 
-    function startCycle() {
-        const cards = document.querySelectorAll('.card');
-        if (!cards.length) return;
+            // Обновляем данные в существующих ячейках, не перерисовывая их
+            for (let i = 1; i <= 80; i++) {
+                const card = document.getElementById(`c${i}`);
+                if (!card) continue;
+                
+                const nameEl = card.querySelector('.name');
+                const priceEl = card.querySelector('.price');
+                const imgEl = card.querySelector('img');
 
-        function showNext() {
-            const rnd = Math.floor(Math.random() * 80);
-            const nextTarget = cards[rnd];
-
-            // Зажигаем в сетке заранее
-            nextTarget.classList.add('preparing');
-
-            setTimeout(() => {
-                if (currentActive) {
-                    currentActive.classList.remove('active');
-                    currentActive.style.translate = "0 0";
+                if (rows[i] && rows[i][1]) {
+                    nameEl.innerText = rows[i][1].replace(/"/g, '').trim();
+                    priceEl.innerText = (rows[i][2]?.replace(/"/g, '').trim() || "0") + " €";
+                    imgEl.src = rows[i][3]?.replace(/"/g, '').trim() || "https://via.placeholder.com/35/111/333";
+                } else {
+                    nameEl.innerText = "Διαθέσιμο";
+                    priceEl.innerText = "-- €";
+                    imgEl.src = "https://via.placeholder.com/35/111/333";
                 }
+            }
 
-                nextTarget.classList.remove('preparing');
-                nextTarget.classList.add('active');
-                currentActive = nextTarget;
-
-                const rect = nextTarget.getBoundingClientRect();
-                const centerX = window.innerWidth / 2;
-                const centerY = window.innerHeight / 2;
-                const targetX = rect.left + rect.width / 2;
-                const targetY = rect.top + rect.height / 2;
-
-                nextTarget.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
-
-                // Пауза перед следующим вылетом стала чуть больше, так как анимация дольше
-                setTimeout(showNext, 5500); 
-
-            }, 2000); 
-        }
-        showNext();
+            if (!isStarted) {
+                isStarted = true;
+                startCycle();
+            }
+        } catch (e) { console.error("CSV error"); }
     }
 
-    loadData().then(startCycle);
+    function showNext() {
+        const cards = document.querySelectorAll('.card');
+        const rnd = Math.floor(Math.random() * 80);
+        const nextTarget = cards[rnd];
+
+        nextTarget.classList.add('preparing');
+
+        setTimeout(() => {
+            if (currentActive) {
+                currentActive.classList.remove('active');
+                currentActive.style.translate = "0 0";
+            }
+
+            nextTarget.classList.remove('preparing');
+            nextTarget.classList.add('active');
+            currentActive = nextTarget;
+
+            const rect = nextTarget.getBoundingClientRect();
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const targetX = rect.left + rect.width / 2;
+            const targetY = rect.top + rect.height / 2;
+
+            nextTarget.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
+
+            setTimeout(showNext, 6000); 
+        }, 2000); 
+    }
+
+    function startCycle() { showNext(); }
+
+    loadData();
     setInterval(loadData, 60000);
 </script>
 </body>
