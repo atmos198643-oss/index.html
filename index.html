@@ -11,76 +11,73 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* ШИРОКАЯ РАДУЖНАЯ ЗМЕЙКА ПО КРАЮ */
+        /* ШИРОКАЯ РАДУЖНАЯ ЗМЕЙКА ПО САМОМУ КРАЮ */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 8px; /* Ширина змейки */
+            content: ""; position: absolute; inset: 0; padding: 6px;
             background: conic-gradient(
                 from var(--angle),
-                #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000 30%,
-                transparent 45%
+                #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000 25%,
+                transparent 40%
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.8));
-            animation: rotate 5s linear infinite;
+            animation: rotate 4s linear infinite;
             z-index: 1000; pointer-events: none;
         }
 
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Шапка */
         .header {
-            height: 10vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 50px; z-index: 10;
+            height: 8vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; z-index: 10;
         }
         .header-center { 
-            font-size: 3vw; font-weight: 900; letter-spacing: 10px; 
+            font-size: 2.5vw; font-weight: 900; letter-spacing: 8px; 
             background: linear-gradient(to bottom, #fff, #888);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .time-box { text-align: right; }
-        #clock { font-size: 3vw; font-weight: 800; }
-        #date { font-size: 1vw; color: #666; text-transform: uppercase; }
+        #clock { font-size: 2.5vw; font-weight: 800; color: #fff; }
 
-        /* СЕТКА 10x7 (70 ЯЧЕЕК) */
+        /* ПЛОТНАЯ СЕТКА 10x8 (80 ЯЧЕЕК) */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(10, 1fr); 
-            grid-template-rows: repeat(7, 1fr);
-            gap: 8px; padding: 5px 30px 20px 30px;
+            grid-template-rows: repeat(8, 1fr);
+            gap: 2px; /* Минимальный зазор между ячейками */
+            padding: 0 15px 15px 15px;
             z-index: 5;
         }
 
         .card { 
-            background: rgba(40, 40, 40, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px; display: flex; align-items: center; 
-            padding: 4px 8px; transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-            position: relative; overflow: visible;
+            background: rgba(30, 30, 30, 0.9); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; align-items: center; 
+            padding: 2px 8px; 
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative; overflow: hidden;
         }
 
-        /* ЭФФЕКТ УВЕЛИЧЕНИЯ В 5-6 РАЗ */
+        /* ЭФФЕКТ УВЕЛИЧЕНИЯ И ВЫПЛЫВАНИЯ */
         .active { 
-            background: #111;
+            background: #222;
             border: 2px solid #fff;
-            box-shadow: 0 0 100px rgba(255, 255, 255, 0.8), 0 0 200px rgba(0, 0, 0, 1);
-            transform: scale(5.5); /* Увеличение в 5.5 раз */
+            box-shadow: 0 0 60px rgba(0, 0, 0, 1), 0 0 30px rgba(255, 255, 255, 0.3);
+            transform: scale(2.8); /* Увеличение почти в 3 раза */
             z-index: 9999;
-            color: #fff;
+            border-radius: 4px;
         }
 
-        .img-box { width: 30px; height: 20px; background: #000; margin-right: 6px; flex-shrink: 0; }
+        .img-box { width: 30px; height: 20px; background: #000; margin-right: 8px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
         img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
         .info { display: flex; flex-direction: column; min-width: 0; }
-        .name { font-size: 0.6vw; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 0.8vw; color: #00ffcc; font-weight: 800; }
+        .name { font-size: 0.65vw; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 0.85vw; color: #00ffcc; font-weight: 800; }
 
-        /* Скрытие текста в обычных ячейках для чистоты (опционально) */
-        .active .name { font-size: 0.5vw; color: #fff; white-space: normal; }
-        .active .price { font-size: 0.8vw; }
-        .active .img-box { width: 60px; height: 40px; }
+        .active .name { white-space: normal; color: #fff; font-size: 0.5vw; line-height: 1.1; }
+        .active .price { font-size: 0.7vw; }
     </style>
 </head>
 <body>
@@ -88,10 +85,7 @@
 <div class="header">
     <div style="width:20%"></div>
     <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
-    <div class="time-box">
-        <div id="clock">00:00</div>
-        <div id="date">-- -- --</div>
-    </div>
+    <div style="width:20%; text-align: right;"><div id="clock">00:00</div></div>
 </div>
 
 <div id="board" class="grid-container"></div>
@@ -102,7 +96,6 @@
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('el-GR', {hour: '2-digit', minute:'2-digit'});
-        document.getElementById('date').innerText = now.toLocaleDateString('el-GR', {weekday: 'long', day: 'numeric', month: 'short'});
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -113,8 +106,8 @@
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
             let html = "";
-            for (let i = 1; i <= 70; i++) {
-                let name = "Κενό", price = "--", img = "https://via.placeholder.com/30/111";
+            for (let i = 1; i <= 80; i++) {
+                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/30/111";
                 if (rows[i] && rows[i][1]) {
                     name = rows[i][1].replace(/"/g, '');
                     price = rows[i][2]?.replace(/"/g, '') || "0";
@@ -130,31 +123,27 @@
         const cards = document.querySelectorAll('.card');
         cards.forEach(c => {
             c.classList.remove('active');
-            c.style.translate = "0 0"; // Сброс смещения
+            c.style.translate = "0 0";
         });
 
-        const rnd = Math.floor(Math.random() * 70);
+        const rnd = Math.floor(Math.random() * 80);
         const target = cards[rnd];
         if (!target) return;
 
         target.classList.add('active');
 
-        // ЛОГИКА УХОДА ОТ КРАЕВ К ЦЕНТРУ
+        // ЛОГИКА ПЛАВНОГО СМЕЩЕНИЯ К ЦЕНТРУ
         const rect = target.getBoundingClientRect();
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        
-        let moveX = 0;
-        let moveY = 0;
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const centerX = winW / 2;
+        const centerY = winH / 2;
+        const targetX = rect.left + rect.width / 2;
+        const targetY = rect.top + rect.height / 2;
 
-        // Если слишком близко к левому краю
-        if (rect.left < 200) moveX = 150;
-        // Если слишком близко к правому
-        if (rect.right > screenWidth - 200) moveX = -150;
-        // Если слишком близко к верху
-        if (rect.top < 200) moveY = 150;
-        // Если слишком близко к низу
-        if (rect.bottom > screenHeight - 100) moveY = -150;
+        // Вычисляем вектор к центру и сдвигаем на 20% этого расстояния для "выплывания"
+        let moveX = (centerX - targetX) * 0.4;
+        let moveY = (centerY - targetY) * 0.4;
 
         target.style.translate = `${moveX}px ${moveY}px`;
     }
