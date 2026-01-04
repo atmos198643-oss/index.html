@@ -11,25 +11,21 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* КЛАССИЧЕСКАЯ ЗМЕЙКА С ДЛИННЫМ ХВОСТОМ */
+        /* КЛАССИЧЕСКАЯ ЗМЕЙКА С ХВОСТОМ */
         body::before {
             content: ""; position: absolute; inset: 0; padding: 5px;
-            /* Хвост теперь длиннее (120 градусов) для солидности */
             background: conic-gradient(
                 from var(--angle),
-                #00d2ff 0deg, 
-                #00ffcc 60deg,
-                #8000ff 100deg,
-                transparent 150deg
+                #fff 0deg, 
+                #00d2ff 30deg,
+                #a000ff 80deg,
+                transparent 140deg
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            
-            /* Внутреннее пламя (аккуратное затекание) */
-            filter: blur(2px) drop-shadow(0 0 20px rgba(0, 210, 255, 0.9));
-            box-shadow: inset 0 0 45px rgba(0, 210, 255, 0.3);
-            
+            filter: blur(1px) drop-shadow(0 0 15px rgba(0, 210, 255, 0.8));
+            box-shadow: inset 0 0 40px rgba(0, 210, 255, 0.4);
             animation: rotate 4s linear infinite;
             z-index: 100; pointer-events: none;
         }
@@ -37,58 +33,77 @@
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Логотипный заголовок */
+        /* Шапка */
         .header {
-            height: 14vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 70px; z-index: 10;
+            height: 12vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 60px; z-index: 10;
         }
         .header-center { 
-            font-size: 4.8vw; font-weight: 900; letter-spacing: 18px; 
-            text-transform: uppercase;
-            background: linear-gradient(to bottom, #ffffff 30%, #00d2ff 100%);
+            font-size: 4.5vw; font-weight: 900; letter-spacing: 15px; 
+            background: linear-gradient(to bottom, #fff, #00d2ff);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
+            filter: drop-shadow(0 0 10px var(--neon));
         }
-        #clock { font-size: 3.8vw; font-weight: 800; color: #fff; text-shadow: 0 0 15px var(--neon); }
+        #clock { font-size: 3.5vw; font-weight: 800; color: #fff; text-shadow: 0 0 10px var(--neon); }
 
-        /* Сетка 8x5 = 40 прямоугольников */
+        /* СЕТКА: 8 КОЛОНОК x 5 РЯДОВ (40 ШТУК) */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(8, 1fr); 
             grid-template-rows: repeat(5, 1fr);
-            gap: 14px; padding: 0 50px 35px 50px;
+            gap: 10px; padding: 5px 30px 25px 30px;
             z-index: 5;
         }
 
+        /* ВЫТЯНУТЫЙ ГОРИЗОНТАЛЬНЫЙ ПРЯМОУГОЛЬНИК */
         .card { 
-            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 10px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 10px;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px; 
+            display: flex; 
+            flex-direction: row; /* Иконка и текст в ряд */
+            align-items: center; 
+            padding: 5px 10px;
+            transition: all 0.5s ease;
+            overflow: hidden;
         }
 
-        /* Хаотичная подсветка */
         .active { 
-            background: rgba(0, 210, 255, 0.18); border-color: #ffffff;
-            box-shadow: 0 0 30px var(--neon);
-            transform: scale(1.08) translateY(-3px); z-index: 20;
+            background: rgba(0, 210, 255, 0.2); 
+            border-color: #fff;
+            box-shadow: 0 0 20px var(--neon);
+            transform: scale(1.05); z-index: 10;
         }
 
-        .img-box { width: 85px; height: 55px; background: #000; border-radius: 5px; display: flex; justify-content: center; align-items: center; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        /* Мини-бокс для логотипа в карточке */
+        .img-box { 
+            width: 40px; height: 30px; 
+            background: #000; border-radius: 3px; 
+            display: flex; justify-content: center; align-items: center; 
+            margin-right: 10px; flex-shrink: 0;
+        }
         img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
-        .name { font-size: 0.8vw; color: #eee; font-weight: 600; text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 1.3vw; color: #00ffcc; font-weight: 800; margin-top: 3px; }
+        .info { 
+            display: flex; flex-direction: column; 
+            justify-content: center; min-width: 0; 
+        }
+
+        .name { 
+            font-size: 0.75vw; color: #ccc; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .price { 
+            font-size: 1.1vw; color: #00ffcc; font-weight: 800; 
+        }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="width:25%"></div>
+    <div style="width:20%"></div>
     <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
-    <div style="width:25%; text-align: right;">
-        <div id="clock">00:00</div>
-    </div>
+    <div style="width:20%; text-align: right;"><div id="clock">00:00</div></div>
 </div>
 
 <div id="board" class="grid-container"></div>
@@ -105,7 +120,7 @@
 
     async function loadData() {
         try {
-            const res = await fetch(`${sheetUrl}&nocache=${Date.now()}`);
+            const res = await fetch(`${sheetUrl}&v=${Date.now()}`);
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
             
@@ -113,7 +128,7 @@
             for (let i = 1; i <= 40; i++) {
                 let name = "Διαθέσιμο";
                 let price = "--";
-                let img = "https://via.placeholder.com/85/111/333?text=Logo";
+                let img = "https://via.placeholder.com/40/111/333?text=Logo";
 
                 if (rows[i] && rows[i][1] && rows[i][1].trim() !== "") {
                     name = rows[i][1].replace(/"/g, '').trim();
@@ -121,10 +136,17 @@
                     img = rows[i][3]?.replace(/"/g, '').trim() || img;
                 }
 
-                html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="name">${name}</div><div class="price">${price} €</div></div>`;
+                html += `
+                <div class="card" id="c${i}">
+                    <div class="img-box"><img src="${img}"></div>
+                    <div class="info">
+                        <div class="name">${name}</div>
+                        <div class="price">${price} €</div>
+                    </div>
+                </div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.error("Update fail"); }
+        } catch (e) { console.error("Update error"); }
     }
 
     function highlightRandom() {
@@ -138,8 +160,8 @@
     }
 
     loadData();
-    setInterval(loadData, 60000); // Обновление данных раз в минуту
-    setInterval(highlightRandom, 3500); // Хаотичная подсветка каждые 3.5 сек
+    setInterval(loadData, 60000);
+    setInterval(highlightRandom, 3000);
 </script>
 </body>
 </html>
