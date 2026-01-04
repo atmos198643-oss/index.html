@@ -3,73 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        :root {
+            --neon-blue: #00d2ff;
+            --neon-green: #00ffcc;
+            --bg-dark: #050505;
+        }
+
         body {
             margin: 0; padding: 0;
-            background: radial-gradient(circle, #1a1a2e 0%, #000000 100%);
-            color: white; font-family: sans-serif;
+            background: radial-gradient(circle at center, #101020 0%, #000 100%);
+            color: white; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
+
+        /* Большая верхняя панель */
         .header {
-            background: rgba(0, 150, 255, 0.2);
-            padding: 10px; text-align: center;
-            font-size: 3vw; font-weight: bold; color: #00d2ff;
-            border-bottom: 2px solid #00d2ff;
+            height: 10vh;
+            background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.2), transparent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3.5vw; font-weight: 900; color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.7);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            text-transform: uppercase; letter-spacing: 5px;
         }
+
+        /* Сетка с прямоугольными карточками */
         .grid-container {
+            flex-grow: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 10px; padding: 15px; flex-grow: 1;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Прямоугольная форма */
+            gap: 12px; padding: 20px;
+            perspective: 1000px;
         }
+
         .card { 
-            background: #111; border: 1px solid #333; border-radius: 10px;
-            padding: 8px; display: flex; flex-direction: column; align-items: center;
-            transition: 0.3s; height: 160px; justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex; flex-direction: row; /* Картинка слева, текст справа */
+            align-items: center; padding: 10px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100px; /* Фиксированная высота для стройности */
+            position: relative;
         }
+
+        /* Эффект активной карточки */
         .active { 
-            border-color: #00d2ff; box-shadow: 0 0 20px #00d2ff; 
-            transform: scale(1.05); background: #16213e;
+            background: rgba(0, 210, 255, 0.15);
+            border-color: var(--neon-blue);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.4);
+            transform: scale(1.05) translateZ(20px);
+            z-index: 10;
         }
-        .img-box { width: 100%; height: 60%; background: #000; border-radius: 5px; overflow: hidden; }
-        img { width: 100%; height: 100%; object-fit: contain; }
-        .name { font-size: 14px; text-align: center; margin: 5px 0; height: 32px; overflow: hidden; }
-        .price { font-size: 18px; color: #00ffcc; font-weight: bold; }
+
+        .img-box { 
+            width: 80px; height: 80px; 
+            min-width: 80px;
+            background: #000; border-radius: 8px; 
+            margin-right: 15px; display: flex; 
+            justify-content: center; align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        img { max-width: 90%; max-height: 90%; object-fit: contain; }
+
+        .info {
+            flex-grow: 1; display: flex; flex-direction: column;
+            justify-content: center; overflow: hidden;
+        }
+
+        .name { 
+            font-size: 1.1vw; font-weight: 600; color: #eee;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-bottom: 5px;
+        }
+
+        .price { 
+            font-size: 1.6vw; color: var(--neon-green); font-weight: 800;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+
+        /* Декоративный элемент номера */
+        .id-badge {
+            position: absolute; top: 5px; right: 10px;
+            font-size: 10px; color: rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body>
 
-<div class="header">ДОСКА ОБЪЯВЛЕНИЙ</div>
-<div id="board" class="grid-container">Загрузка данных...</div>
+<div class="header">Доска объявлений</div>
+<div id="board" class="grid-container"></div>
 
 <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
     async function update() {
         try {
-            const res = await fetch(sheetUrl + "&t=" + Math.random());
+            const res = await fetch(sheetUrl + "&cache=" + Date.now());
             const text = await res.text();
-            const lines = text.split('\n');
+            const rows = text.split('\n').map(r => r.split(','));
             
             let html = "";
-            // Обрабатываем до 50 строк
-            for (let i = 1; i < lines.length && i <= 50; i++) {
-                const cols = lines[i].split(',');
-                if (cols.length < 2) continue;
+            for (let i = 1; i < rows.length && i <= 50; i++) {
+                if (!rows[i][1]) continue;
 
-                const name = cols[1]?.replace(/"/g, '') || "Товар";
-                const price = cols[2]?.replace(/"/g, '') || "---";
-                const img = cols[3]?.replace(/"/g, '').trim() || "";
+                const name = rows[i][1].replace(/"/g, '');
+                const price = rows[i][2]?.replace(/"/g, '') || "0";
+                const img = rows[i][3]?.replace(/"/g, '').trim() || "";
 
                 html += `
                 <div class="card" id="c${i}">
-                    <div class="img-box"><img src="${img}" onerror="this.src='https://via.placeholder.com/150/111/333?text=Нет+фото'"></div>
-                    <div class="name">${name}</div>
-                    <div class="price">${price} €</div>
+                    <span class="id-badge">#${i}</span>
+                    <div class="img-box">
+                        <img src="${img}" onerror="this.src='https://via.placeholder.com/80/222/444?text=?';">
+                    </div>
+                    <div class="info">
+                        <div class="name">${name}</div>
+                        <div class="price">${price} €</div>
+                    </div>
                 </div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) {
-            document.getElementById("board").innerHTML = "Ошибка связи с таблицей";
-        }
+        } catch (e) { console.log("Data error"); }
     }
 
     let cur = 1;
@@ -80,15 +136,17 @@
             const target = document.getElementById('c' + cur);
             if (target) {
                 target.classList.add('active');
+                // Прокрутка к элементу, если их очень много
+                target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 cur++;
             } else {
-                cur = 1; // Возврат к началу
+                cur = 1;
             }
         }
-    }, 3000);
+    }, 3500);
 
     update();
-    setInterval(update, 30000);
+    setInterval(update, 45000);
 </script>
 </body>
 </html>
