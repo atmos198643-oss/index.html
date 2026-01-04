@@ -11,18 +11,12 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* ЗМЕЙКА: СТРОГО ПО КРАЮ, ЗАМКНУТАЯ */
+        /* ЗМЕЙКА СТРОГО ПО КРАЮ */
         body::before {
             content: ""; position: absolute; inset: 0; padding: 9px; 
             background: conic-gradient(
                 from var(--angle),
-                #ff0000 0%, 
-                #ffff00 17%, 
-                #00ff00 33%, 
-                #00ffff 50%, 
-                #0000ff 67%, 
-                #ff00ff 83%, 
-                #ff0000 100%
+                #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -40,7 +34,6 @@
             padding: 0 55px; z-index: 10;
         }
 
-        /* ЛОГОТИП КРУПНО ГОЛУБЫМ ГРАДИЕНТОМ */
         .header-logo { 
             font-size: 3.5vw; font-weight: 800;
             background: linear-gradient(180deg, #00d2ff 0%, #0078ff 100%);
@@ -48,11 +41,8 @@
             filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.4));
         }
 
-        /* ЧАСЫ УМЕНЬШЕННЫЕ ЦВЕТНЫЕ */
         #clock { 
-            font-size: 2.2vw; 
-            font-weight: 700; 
-            color: #a2e9ff; 
+            font-size: 2.2vw; font-weight: 700; color: #a2e9ff; 
             text-shadow: 0 0 10px rgba(162, 233, 255, 0.5); 
         }
 
@@ -70,14 +60,23 @@
             border-radius: 12px; 
             display: flex; align-items: center; 
             padding: 2px 10px; 
-            transition: all 0.9s cubic-bezier(0.2, 1, 0.3, 1);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
             position: relative; overflow: hidden;
         }
 
+        /* ЭФФЕКТ ПОДГОТОВКИ (СВЕЧЕНИЕ) */
+        .preparing {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-color: #fff !important;
+            box-shadow: 0 0 20px #fff;
+            transition: all 0.5s ease;
+        }
+
+        /* АКТИВНОЕ ОКНО */
         .active { 
             background: #1a1a1a;
             border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 100px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 120px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.2);
             transform: scale(2.6);
             z-index: 9999;
             border-radius: 12px;
@@ -130,37 +129,44 @@
                 html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.error("CSV Fail"); }
+        } catch (e) {}
     }
 
-    function highlightRandom() {
+    function highlightNext() {
         const cards = document.querySelectorAll('.card');
+        if (!cards.length) return;
+
+        // Очищаем всё
         cards.forEach(c => {
-            c.classList.remove('active');
+            c.classList.remove('active', 'preparing');
             c.style.translate = "0 0";
         });
 
+        // Выбираем новую цель
         const rnd = Math.floor(Math.random() * 80);
         const target = cards[rnd];
-        if (!target) return;
 
-        target.classList.add('active');
+        // 1. ФАЗА ПОДГОТОВКИ (Светится 1.5 сек)
+        target.classList.add('preparing');
 
-        const rect = target.getBoundingClientRect();
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const targetX = rect.left + rect.width / 2;
-        const targetY = rect.top + rect.height / 2;
+        setTimeout(() => {
+            // 2. ФАЗА ВЫЛЕТА (Через 1.5 сек)
+            target.classList.remove('preparing');
+            target.classList.add('active');
 
-        let moveX = (centerX - targetX) * 0.45;
-        let moveY = (centerY - targetY) * 0.45;
+            const rect = target.getBoundingClientRect();
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            const targetX = rect.left + rect.width / 2;
+            const targetY = rect.top + rect.height / 2;
 
-        target.style.translate = `${moveX}px ${moveY}px`;
+            target.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
+        }, 1500); 
     }
 
     loadData();
     setInterval(loadData, 60000);
-    setInterval(highlightRandom, 6000);
+    setInterval(highlightNext, 7500); // 1.5 сек на вспышку + 6 сек на показ = 7.5 сек цикл
 </script>
 </body>
 </html>
