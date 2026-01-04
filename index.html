@@ -7,14 +7,13 @@
 
         body {
             margin: 0; padding: 0; background: #000; color: white;
-            font-family: 'Helvetica Neue', Arial, sans-serif; height: 100vh; width: 100vw;
+            font-family: 'Segoe UI', sans-serif; height: 100vh; width: 100vw;
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* ЗАМКНУТАЯ РАДУЖНАЯ ЗМЕЙКА */
+        /* ЗМЕЙКА: СТРОГО ПО КРАЮ, ЗАМКНУТАЯ */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 10px;
-            /* Градиент теперь замкнут (0% и 100% совпадают) */
+            content: ""; position: absolute; inset: 0; padding: 9px; 
             background: conic-gradient(
                 from var(--angle),
                 #ff0000 0%, 
@@ -28,8 +27,8 @@
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            filter: blur(1px) drop-shadow(0 0 20px rgba(255,255,255,0.3));
-            animation: rotate 6s linear infinite;
+            filter: blur(1px) drop-shadow(0 0 25px rgba(255,255,255,0.4));
+            animation: rotate 5s linear infinite;
             z-index: 1000; pointer-events: none;
         }
 
@@ -38,59 +37,60 @@
 
         .header {
             height: 12vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 60px; z-index: 10;
+            padding: 0 55px; z-index: 10;
         }
 
+        /* ЛОГОТИП КРУПНО ГОЛУБЫМ ГРАДИЕНТОМ */
         .header-logo { 
-            font-size: 3.2vw; font-weight: 800;
+            font-size: 3.5vw; font-weight: 800;
             background: linear-gradient(180deg, #00d2ff 0%, #0078ff 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.3));
+            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.4));
         }
 
-        /* УМЕНЬШЕННЫЕ ЦВЕТНЫЕ ЧАСЫ */
+        /* ЧАСЫ УМЕНЬШЕННЫЕ ЦВЕТНЫЕ */
         #clock { 
-            font-size: 2.2vw; /* Уменьшил */
-            font-weight: 600; 
-            color: #a2e9ff; /* Ледяной голубой */
-            text-shadow: 0 0 10px rgba(162, 233, 255, 0.5);
-            font-variant-numeric: tabular-nums;
+            font-size: 2.2vw; 
+            font-weight: 700; 
+            color: #a2e9ff; 
+            text-shadow: 0 0 10px rgba(162, 233, 255, 0.5); 
         }
 
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(10, 1fr); 
             grid-template-rows: repeat(8, 1fr);
-            gap: 5px; padding: 0 30px 25px 30px;
+            gap: 4px; padding: 0 25px 25px 25px;
             z-index: 5;
         }
 
         .card { 
-            background: rgba(25, 25, 25, 0.95); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px; 
+            background: rgba(35, 35, 35, 0.85); 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; 
             display: flex; align-items: center; 
             padding: 2px 10px; 
             transition: all 0.9s cubic-bezier(0.2, 1, 0.3, 1);
+            position: relative; overflow: hidden;
         }
 
         .active { 
-            background: #111;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 100px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.1);
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 100px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.15);
             transform: scale(2.6);
             z-index: 9999;
-            border-radius: 14px;
+            border-radius: 12px;
         }
 
         .img-box { width: 35px; height: 25px; background: #000; border-radius: 4px; margin-right: 10px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
         img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
         .info { display: flex; flex-direction: column; min-width: 0; }
-        .name { font-size: 0.75vw; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .name { font-size: 0.7vw; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .price { font-size: 0.9vw; color: #00ffcc; font-weight: 800; }
 
-        .active .name { white-space: normal; color: #fff; font-size: 0.6vw; }
+        .active .name { white-space: normal; color: #fff; font-size: 0.6vw; line-height: 1.1; }
         .active .price { font-size: 0.8vw; margin-top: 2px; }
     </style>
 </head>
@@ -130,7 +130,7 @@
                 html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) {}
+        } catch (e) { console.error("CSV Fail"); }
     }
 
     function highlightRandom() {
@@ -152,7 +152,10 @@
         const targetX = rect.left + rect.width / 2;
         const targetY = rect.top + rect.height / 2;
 
-        target.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
+        let moveX = (centerX - targetX) * 0.45;
+        let moveY = (centerY - targetY) * 0.45;
+
+        target.style.translate = `${moveX}px ${moveY}px`;
     }
 
     loadData();
