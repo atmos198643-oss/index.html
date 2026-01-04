@@ -41,10 +41,7 @@
             filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.4));
         }
 
-        #clock { 
-            font-size: 2.2vw; font-weight: 700; color: #a2e9ff; 
-            text-shadow: 0 0 10px rgba(162, 233, 255, 0.5); 
-        }
+        #clock { font-size: 2.2vw; font-weight: 700; color: #a2e9ff; text-shadow: 0 0 10px rgba(162, 233, 255, 0.5); }
 
         .grid-container {
             flex-grow: 1; display: grid;
@@ -61,22 +58,22 @@
             display: flex; align-items: center; 
             padding: 2px 10px; 
             transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-            position: relative; overflow: hidden;
+            position: relative;
         }
 
-        /* ЭФФЕКТ ПОДГОТОВКИ (СВЕЧЕНИЕ) */
+        /* ПОДГОТОВКА СЛЕДУЮЩЕЙ ЯЧЕЙКИ */
         .preparing {
-            background: rgba(255, 255, 255, 0.2) !important;
-            border-color: #fff !important;
-            box-shadow: 0 0 20px #fff;
-            transition: all 0.5s ease;
+            background: rgba(0, 210, 255, 0.4) !important;
+            border-color: #00d2ff !important;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+            transition: all 0.6s ease;
         }
 
-        /* АКТИВНОЕ ОКНО */
+        /* АКТИВНАЯ ЯЧЕЙКА */
         .active { 
             background: #1a1a1a;
             border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 120px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 120px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.15);
             transform: scale(2.6);
             z-index: 9999;
             border-radius: 12px;
@@ -105,6 +102,7 @@
 
 <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
+    let currentActive = null;
 
     function updateTime() {
         const now = new Date();
@@ -132,41 +130,49 @@
         } catch (e) {}
     }
 
-    function highlightNext() {
+    function startCycle() {
         const cards = document.querySelectorAll('.card');
         if (!cards.length) return;
 
-        // Очищаем всё
-        cards.forEach(c => {
-            c.classList.remove('active', 'preparing');
-            c.style.translate = "0 0";
-        });
+        function showNext() {
+            // 1. Выбираем следующую ячейку
+            const rnd = Math.floor(Math.random() * 80);
+            const nextTarget = cards[rnd];
 
-        // Выбираем новую цель
-        const rnd = Math.floor(Math.random() * 80);
-        const target = cards[rnd];
+            // 2. Начинаем подсвечивать её заранее (за 2 секунды до вылета)
+            nextTarget.classList.add('preparing');
 
-        // 1. ФАЗА ПОДГОТОВКИ (Светится 1.5 сек)
-        target.classList.add('preparing');
+            setTimeout(() => {
+                // 3. Убираем старую активную ячейку
+                if (currentActive) {
+                    currentActive.classList.remove('active');
+                    currentActive.style.translate = "0 0";
+                }
 
-        setTimeout(() => {
-            // 2. ФАЗА ВЫЛЕТА (Через 1.5 сек)
-            target.classList.remove('preparing');
-            target.classList.add('active');
+                // 4. Делаем подсвеченную ячейку активной
+                nextTarget.classList.remove('preparing');
+                nextTarget.classList.add('active');
+                currentActive = nextTarget;
 
-            const rect = target.getBoundingClientRect();
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            const targetX = rect.left + rect.width / 2;
-            const targetY = rect.top + rect.height / 2;
+                const rect = nextTarget.getBoundingClientRect();
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const targetX = rect.left + rect.width / 2;
+                const targetY = rect.top + rect.height / 2;
 
-            target.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
-        }, 1500); 
+                nextTarget.style.translate = `${(centerX - targetX) * 0.45}px ${(centerY - targetY) * 0.45}px`;
+
+                // 5. Запускаем следующий цикл за 2 секунды ДО завершения текущего
+                setTimeout(showNext, 4500); // 4.5сек активна + 2сек параллельной подготовки = 6.5сек
+
+            }, 2000); // Время подготовки
+        }
+
+        showNext();
     }
 
-    loadData();
+    loadData().then(startCycle);
     setInterval(loadData, 60000);
-    setInterval(highlightNext, 7500); // 1.5 сек на вспышку + 6 сек на показ = 7.5 сек цикл
 </script>
 </body>
 </html>
