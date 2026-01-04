@@ -11,7 +11,7 @@
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* Тонкая змейка с широким пламенем вовнутрь (3см эффект) */
+        /* Тонкая змейка с широким пламенем вовнутрь */
         body::before {
             content: ""; position: absolute; inset: 0; padding: 3px;
             background: conic-gradient(
@@ -29,28 +29,22 @@
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Дизайнерский логотип ΑΓΓΕΛΙΕΣ */
         .header {
             height: 14vh; display: flex; align-items: center; justify-content: space-between;
             padding: 0 60px; z-index: 10;
         }
 
         .header-center { 
-            font-size: 5vw; font-weight: 900; 
-            letter-spacing: 20px; 
-            text-transform: uppercase;
-            /* Градиент и свечение логотипа */
+            font-size: 5vw; font-weight: 900; letter-spacing: 20px; text-transform: uppercase;
             background: linear-gradient(to bottom, #ffffff 40%, #00d2ff 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6)) drop-shadow(0 0 30px rgba(0, 210, 255, 0.2));
-            position: relative;
+            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
         }
 
         .header-right { width: 30%; text-align: right; }
         #clock { font-size: 3.5vw; font-weight: 800; color: var(--neon); line-height: 1; }
         #date { font-size: 1.2vw; color: #888; text-transform: uppercase; margin-top: 5px; }
 
-        /* Сетка на 45 прямоугольных ячеек (9 колонок x 5 рядов) */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(9, 1fr); 
@@ -62,7 +56,7 @@
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; padding: 8px;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s ease;
         }
 
         .active { 
@@ -74,9 +68,8 @@
         .img-box { width: 65px; height: 50px; background: #000; border-radius: 4px; display: flex; justify-content: center; align-items: center; margin-bottom: 5px; }
         img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
-        .name { font-size: 0.8vw; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; font-weight: 600; }
+        .name { font-size: 0.8vw; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
         .price { font-size: 1.2vw; color: #00ffcc; font-weight: 800; }
-
     </style>
 </head>
 <body>
@@ -85,14 +78,15 @@
     <div style="width:30%"></div>
     <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
     <div class="header-right">
-        <div id="clock">00:00</div>
-        <div id="date">ΔΕΥΤΕΡΑ</div>
+        <div id="clock">--:--</div>
+        <div id="date">...</div>
     </div>
 </div>
 
 <div id="board" class="grid-container"></div>
 
 <script>
+    // Ссылка на твою таблицу
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
     function updateTime() {
@@ -103,43 +97,67 @@
     setInterval(updateTime, 1000);
     updateTime();
 
-    async function update() {
+    async function loadData() {
         try {
-            const res = await fetch(sheetUrl + "&t=" + Date.now());
-            const text = await res.text();
-            const rows = text.split('\n').map(r => r.split(','));
+            // Добавляем случайное число к ссылке, чтобы браузер не брал старую версию из памяти
+            const response = await fetch(`${sheetUrl}&nocache=${new Date().getTime()}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.text();
+            const rows = data.split('\n').map(row => row.split(','));
             
             let html = "";
             for (let i = 1; i <= 45; i++) {
                 let name = "Κενό";
                 let price = "--";
-                let img = "https://via.placeholder.com/65/111/333?text=Agilis";
+                let img = "https://via.placeholder.com/65/111/333?text=Logo";
 
+                // Проверяем наличие данных в строке
                 if (rows[i] && rows[i][1] && rows[i][1].trim() !== "") {
-                    name = rows[i][1].replace(/"/g, '');
-                    price = rows[i][2]?.replace(/"/g, '') || "0";
+                    name = rows[i][1].replace(/"/g, '').trim();
+                    price = rows[i][2]?.replace(/"/g, '').trim() || "0";
                     img = rows[i][3]?.replace(/"/g, '').trim() || img;
                 }
 
-                html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
+                html += `
+                <div class="card" id="c${i}">
+                    <div class="img-box"><img src="${img}" onerror="this.src='https://via.placeholder.com/65/111/333?text=Error';"></div>
+                    <div class="info">
+                        <div class="name">${name}</div>
+                        <div class="price">${price} €</div>
+                    </div>
+                </div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.log("Sync error"); }
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            // Если совсем ничего не грузится, создаем пустую сетку
+            if (document.getElementById("board").innerHTML === "") {
+                createEmptyGrid();
+            }
+        }
+    }
+
+    function createEmptyGrid() {
+        let html = "";
+        for (let i = 1; i <= 45; i++) {
+            html += `<div class="card" id="c${i}"><div class="img-box"></div><div class="info"><div class="name">Κενό</div><div class="price">-- €</div></div></div>`;
+        }
+        document.getElementById("board").innerHTML = html;
     }
 
     function highlightRandom() {
         const cards = document.querySelectorAll('.card');
-        if (cards.length) {
+        if (cards.length > 0) {
             cards.forEach(c => c.classList.remove('active'));
-            const randomId = Math.floor(Math.random() * cards.length) + 1;
-            const target = document.getElementById('c' + randomId);
-            if (target) target.classList.add('active');
+            const randomIdx = Math.floor(Math.random() * cards.length);
+            cards[randomIdx].classList.add('active');
         }
     }
-    setInterval(highlightRandom, 3000);
 
-    update();
-    setInterval(update, 60000);
+    // Запуск
+    loadData();
+    setInterval(loadData, 30000); // Обновлять данные каждые 30 сек
+    setInterval(highlightRandom, 3000); // Прыгать рамкой каждые 3 сек
 </script>
 </body>
 </html>
