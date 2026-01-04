@@ -3,97 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        :root { --angle: 0deg; --neon-blue: #00d2ff; --clock-yellow: #ffcc00; }
+        :root { --angle: 0deg; --neon: #00d2ff; }
 
         body {
             margin: 0; padding: 0; background: #000; color: white;
-            font-family: 'Segoe UI', sans-serif; height: 100vh; width: 100vw;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            height: 100vh; width: 100vw;
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* Широкая радужная змейка по самому краю */
+        /* Змейка с эффектом пламени вовнутрь */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 10px;
+            content: ""; position: absolute; inset: 0; padding: 6px;
             background: conic-gradient(
                 from var(--angle),
-                transparent 0%, #ff0000, #ffff00, #00ffcc, #00d2ff, #0000ff, transparent 50%
+                #ff0000, #ffff00, #00ffcc, #00d2ff, #8000ff, transparent 45%
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            filter: blur(3px); animation: rotate 4s linear infinite;
+            filter: blur(2px) drop-shadow(0 0 12px rgba(0, 210, 255, 0.7));
+            animation: rotate 4s linear infinite;
             z-index: 9999; pointer-events: none;
         }
 
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Шапка с огромными часами */
+        /* Шапка с полулоготипным шрифтом */
         .header {
-            height: 16vh; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 60px; background: rgba(255,255,255,0.03);
-            border-bottom: 2px solid rgba(255,255,255,0.1); z-index: 10;
+            height: 10vh; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+            z-index: 10;
         }
 
-        .header-left { width: 15%; } /* Баланс */
-
+        .header-left { width: 25%; }
+        
         .header-center { 
-            width: 50%; text-align: center; font-size: 5.8vw; font-weight: 900; 
-            letter-spacing: 8px; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3);
+            width: 50%; text-align: center; 
+            font-size: 4.5vw; font-weight: 900; 
+            letter-spacing: 15px; /* Растяжка для эффекта логотипа */
             text-transform: uppercase;
+            background: linear-gradient(180deg, #ffffff 30%, #00d2ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.5));
         }
 
-        .header-right { 
-            width: 35%; text-align: right; display: flex; flex-direction: column; justify-content: center;
-        }
+        .header-right { width: 25%; text-align: right; line-height: 1; }
+        #clock { font-size: 3vw; font-weight: 800; color: var(--neon); text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); }
+        #date { font-size: 1vw; color: #aaa; text-transform: uppercase; margin-top: 3px; }
 
-        #clock { 
-            font-size: 5vw; font-weight: 900; color: var(--clock-yellow); 
-            line-height: 1; text-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
-        }
-
-        #date { 
-            font-size: 1.6vw; color: #ffffff; font-weight: 600; 
-            text-transform: uppercase; margin-top: 5px; letter-spacing: 1px;
-        }
-
-        /* Сетка на 50 ячеек */
+        /* Сетка 10x5 (50 ячеек) */
         .grid-container {
             flex-grow: 1; display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 10px; padding: 20px 40px; overflow: hidden;
-            align-content: start;
+            grid-template-columns: repeat(10, 1fr); 
+            grid-template-rows: repeat(5, 1fr);
+            gap: 6px; padding: 10px 25px; 
         }
 
         .card { 
-            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px; display: flex; align-items: center; padding: 10px;
-            height: 85px; transition: 0.4s;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 3px;
+            transition: 0.3s;
         }
 
         .active { 
-            background: rgba(255, 255, 255, 0.12); border-color: #fff;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2); transform: scale(1.04);
+            background: rgba(0, 210, 255, 0.1); border-color: var(--neon);
+            box-shadow: inset 0 0 10px rgba(0, 210, 255, 0.2);
+            transform: scale(1.04); z-index: 5;
         }
 
-        .img-box { width: 75px; height: 75px; min-width: 75px; background: #000; border-radius: 8px; margin-right: 15px; display: flex; justify-content: center; align-items: center; }
-        img { max-width: 85%; max-height: 85%; object-fit: contain; }
+        .img-box { width: 42px; height: 42px; background: #000; border-radius: 4px; display: flex; justify-content: center; align-items: center; margin-bottom: 2px; }
+        img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
-        .info { flex-grow: 1; overflow: hidden; }
-        .name { font-size: 1vw; font-weight: 600; color: #ddd; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 1.6vw; color: #00ffcc; font-weight: 900; }
+        .name { font-size: 0.7vw; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 0.95vw; color: #00ffcc; font-weight: 800; }
 
-        /* Белая новостная строка */
-        .news-ticker {
-            height: 7vh; background: #fff; color: #000;
-            display: flex; align-items: center; overflow: hidden;
-            position: relative; z-index: 5; margin-bottom: 4px;
-        }
-        .ticker-wrap { 
-            display: inline-block; white-space: nowrap; 
-            font-size: 2vw; font-weight: 800; animation: ticker 30s linear infinite; 
-        }
-        @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
@@ -103,17 +90,11 @@
     <div class="header-center">ΑΓΓΕΛΙΕΣ</div>
     <div class="header-right">
         <div id="clock">00:00</div>
-        <div id="date">ΔΕΥΤΕΡΑ, 1 ΙΑΝΟΥΑΡΙΟΥ</div>
+        <div id="date">ΔΕΥΤΕΡΑ</div>
     </div>
 </div>
 
 <div id="board" class="grid-container"></div>
-
-<div class="news-ticker">
-    <div class="ticker-wrap">
-        ΚΑΛΩΣ ΗΡΘΑΤΕ ΣΤΙΣ ΑΓΓΕΛΙΕΣ • ΔΕΙΤΕ ΤΙΣ ΤΕΛΕΥΤΑΙΕΣ ΠΡΟΣΦΟΡΕΣ • ΕΠΙΚΟΙΝΩΝΗΣΤΕ ΜΑΖΙ ΜΑΣ ΓΙΑ ΤΗ ΔΙΚΗ ΣΑΣ ΔΙΑΦΗΜΙΣΗ • 
-    </div>
-</div>
 
 <script>
     const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
@@ -121,8 +102,7 @@
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('el-GR', {hour: '2-digit', minute:'2-digit'});
-        const options = { weekday: 'long', day: 'numeric', month: 'long' };
-        document.getElementById('date').innerText = now.toLocaleDateString('el-GR', options);
+        document.getElementById('date').innerText = now.toLocaleDateString('el-GR', {weekday: 'long', day: 'numeric', month: 'short'});
     }
     setInterval(updateTime, 1000);
     updateTime();
@@ -135,9 +115,9 @@
             
             let html = "";
             for (let i = 1; i <= 50; i++) {
-                let name = "Διαθέσιμος χώρος";
+                let name = "Κενό";
                 let price = "--";
-                let img = "https://via.placeholder.com/80/111/333?text=Agilis";
+                let img = "https://via.placeholder.com/50/111/333?text=Logo";
 
                 if (rows[i] && rows[i][1] && rows[i][1].trim() !== "") {
                     name = rows[i][1].replace(/"/g, '');
@@ -145,14 +125,7 @@
                     img = rows[i][3]?.replace(/"/g, '').trim() || img;
                 }
 
-                html += `
-                <div class="card" id="c${i}">
-                    <div class="img-box"><img src="${img}"></div>
-                    <div class="info">
-                        <div class="name">${name}</div>
-                        <div class="price">${price} €</div>
-                    </div>
-                </div>`;
+                html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
             }
             document.getElementById("board").innerHTML = html;
         } catch (e) { console.log("Re-sync..."); }
@@ -166,7 +139,7 @@
             const target = document.getElementById('c' + cur);
             if (target) { target.classList.add('active'); cur++; } else { cur = 1; }
         }
-    }, 3500);
+    }, 3000);
 
     update();
     setInterval(update, 60000);
