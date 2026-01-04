@@ -7,27 +7,27 @@
 
         body {
             margin: 0; padding: 0; background: #000; color: white;
-            font-family: 'Helvetica Neue', Arial, sans-serif; height: 100vh; width: 100vw;
+            font-family: 'Segoe UI', sans-serif; height: 100vh; width: 100vw;
             display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        /* КЛАССИЧЕСКАЯ ШИРОКАЯ ЗМЕЙКА ПО КРАЮ */
+        /* МОЩНАЯ ГРАДИЕНТНАЯ ЗМЕЙКА */
         body::before {
-            content: ""; position: absolute; inset: 0; padding: 12px;
+            content: ""; position: absolute; inset: 0; padding: 12px; /* Чуть шире */
             background: conic-gradient(
                 from var(--angle),
-                #ffffff 0deg, 
-                #00d2ff 30deg,
-                #33ff00 70deg,
-                #ffff00 110deg,
-                #ff0000 150deg,
-                #a000ff 200deg,
-                transparent 260deg
+                #ffffff 0deg,      /* Белый нос */
+                #00d2ff 25deg,     /* Голубой */
+                #33ff00 70deg,     /* Зеленый */
+                #ffff00 110deg,    /* Желтый */
+                #ff0000 150deg,    /* Красный */
+                #a000ff 190deg,    /* Фиолетовый */
+                transparent 250deg /* Длинный хвост */
             );
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor; mask-composite: exclude;
-            filter: blur(1.2px) drop-shadow(0 0 20px rgba(255,255,255,0.4));
+            filter: blur(1px) drop-shadow(0 0 25px rgba(255,255,255,0.4));
             animation: rotate 5s linear infinite;
             z-index: 1000; pointer-events: none;
         }
@@ -35,58 +35,55 @@
         @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
         @keyframes rotate { to { --angle: 360deg; } }
 
-        /* Шапка с новым заголовком */
         .header {
             height: 10vh; display: flex; align-items: center; justify-content: space-between;
             padding: 0 55px; z-index: 10;
         }
         .header-center { 
-            font-size: 2.8vw; font-weight: 500; letter-spacing: 2px;
-            background: linear-gradient(to bottom, #ffffff, #bbbbbb);
+            font-size: 2.5vw; font-weight: 900; letter-spacing: 10px; 
+            background: linear-gradient(to bottom, #fff, #aaa);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            /* Эффект мягкого свечения текста */
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+            text-transform: uppercase;
         }
-        #clock { font-size: 3.2vw; font-weight: 700; color: #fff; }
+        #clock { font-size: 3.2vw; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
 
         /* СЕТКА 10x8 (80 ЯЧЕЕК) */
         .grid-container {
             flex-grow: 1; display: grid;
             grid-template-columns: repeat(10, 1fr); 
             grid-template-rows: repeat(8, 1fr);
-            gap: 5px; padding: 0 25px 25px 25px;
+            gap: 4px; padding: 0 25px 25px 25px;
             z-index: 5;
         }
 
         .card { 
-            background: rgba(30, 30, 30, 0.9); 
+            background: rgba(35, 35, 35, 0.85); 
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px; /* Овальные углы */
+            border-radius: 12px; 
             display: flex; align-items: center; 
             padding: 2px 10px; 
             transition: all 0.9s cubic-bezier(0.2, 1, 0.3, 1);
-            position: relative;
+            position: relative; overflow: hidden;
         }
 
-        /* ТОНКАЯ ОКАНТОВКА ДЛЯ АКТИВНОЙ ЯЧЕЙКИ */
+        /* ВЫЛЕТАЮЩАЯ ЯЧЕЙКА (ТОНКАЯ ОКАНТОВКА) */
         .active { 
-            background: #151515;
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: 0 0 80px rgba(0, 0, 0, 1), 0 0 30px rgba(255, 255, 255, 0.15);
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.9); /* Изящная тонкая рамка */
+            box-shadow: 0 0 100px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.15);
             transform: scale(2.6);
             z-index: 9999;
-            border-radius: 14px;
+            border-radius: 12px;
         }
 
-        .img-box { width: 38px; height: 26px; background: #000; border-radius: 5px; margin-right: 10px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
+        .img-box { width: 35px; height: 25px; background: #000; border-radius: 4px; margin-right: 10px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; }
         img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
         .info { display: flex; flex-direction: column; min-width: 0; }
-        .name { font-size: 0.75vw; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .price { font-size: 0.95vw; color: #00ffcc; font-weight: 800; }
+        .name { font-size: 0.7vw; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .price { font-size: 0.9vw; color: #00ffcc; font-weight: 800; }
 
-        /* Стиль текста при увеличении */
-        .active .name { white-space: normal; color: #fff; font-size: 0.6vw; line-height: 1.2; }
+        .active .name { white-space: normal; color: #fff; font-size: 0.6vw; line-height: 1.1; }
         .active .price { font-size: 0.8vw; margin-top: 2px; }
     </style>
 </head>
@@ -117,7 +114,7 @@
             const rows = text.split('\n').map(r => r.split(','));
             let html = "";
             for (let i = 1; i <= 80; i++) {
-                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/40/111/333?text=Logo";
+                let name = "Διαθέσιμο", price = "--", img = "https://via.placeholder.com/35/111/333?text=Logo";
                 if (rows[i] && rows[i][1]) {
                     name = rows[i][1].replace(/"/g, '').trim();
                     price = rows[i][2]?.replace(/"/g, '').trim() || "0";
@@ -126,7 +123,7 @@
                 html += `<div class="card" id="c${i}"><div class="img-box"><img src="${img}"></div><div class="info"><div class="name">${name}</div><div class="price">${price} €</div></div></div>`;
             }
             document.getElementById("board").innerHTML = html;
-        } catch (e) { console.error("Error loading CSV"); }
+        } catch (e) { console.error("CSV Fail"); }
     }
 
     function highlightRandom() {
@@ -142,7 +139,7 @@
 
         target.classList.add('active');
 
-        // ПЛАВНЫЙ ПЕРЕХОД К ЦЕНТРУ
+        // ВЫПЛЫВАНИЕ К ЦЕНТРУ ЭКРАНА
         const rect = target.getBoundingClientRect();
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
@@ -157,7 +154,7 @@
 
     loadData();
     setInterval(loadData, 60000);
-    setInterval(highlightRandom, 6000); // Показ 6 секунд
+    setInterval(highlightRandom, 6000); // 6 секунд на показ
 </script>
 </body>
 </html>
