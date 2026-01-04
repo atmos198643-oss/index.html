@@ -3,126 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body {
-            background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
-            color: #fff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
+        body { 
+            background: #121212; 
+            color: #fff; 
+            font-family: 'Comic Sans MS', sans-serif; 
+            margin: 0; 
             padding: 20px;
-            height: 100vh;
-            overflow: hidden;
         }
 
+        /* Динамическая сетка как в Pinterest */
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 25px;
-            height: 92vh;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-auto-rows: 10px;
+            gap: 20px;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 15px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Стиль активной карточки (Золотой Неон) */
-        .active {
-            transform: scale(1.05);
-            background: rgba(255, 204, 0, 0.1);
-            border-color: #ffcc00;
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.3), inset 0 0 10px rgba(255, 204, 0, 0.2);
-        }
-
-        .img-container {
-            width: 100%;
-            height: 55%;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            overflow: hidden;
+            transition: 0.3s;
+            position: relative;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+            /* Эффект случайного наклона */
+            transform: rotate(calc(var(--r, 0) * 1deg));
         }
 
-        img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        .active {
+            transform: scale(1.1) rotate(0deg) !important;
+            z-index: 100;
+            box-shadow: 0 0 30px #fff;
+            border: 3px solid white;
         }
 
-        .name {
-            font-size: 1.6vw;
-            font-weight: 800;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 10px 0;
-            color: #fff;
-        }
+        /* Разные размеры ячеек */
+        .size-s { grid-row-end: span 18; }
+        .size-m { grid-row-end: span 25; }
+        .size-l { grid-row-end: span 32; }
 
-        .price-tag {
-            background: #ffcc00;
-            color: #000;
-            padding: 5px 20px;
-            border-radius: 50px;
-            font-size: 2vw;
-            font-weight: 900;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+        .img-container { width: 100%; height: 60%; overflow: hidden; border-radius: 10px; background: rgba(0,0,0,0.2); }
+        img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Индикатор загрузки */
-        #loader {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            font-size: 10px;
-            color: rgba(255,255,255,0.3);
-        }
+        .name { font-weight: 900; margin: 10px 0; text-align: center; line-height: 1; }
+        .price { background: #000; color: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+
+        /* Цвета для фона */
+        .bg-1 { background: #FF5733; } .bg-2 { background: #33FF57; }
+        .bg-3 { background: #3357FF; } .bg-4 { background: #F333FF; }
+        .bg-5 { background: #FF33A8; } .bg-6 { background: #33FFF5; }
+        .bg-7 { background: #FFC300; } .bg-8 { background: #DAF7A6; }
     </style>
 </head>
 <body>
-    <div id="loader">СИНХРОНИЗАЦИЯ...</div>
-    <div id="board" class="grid"></div>
+    <div id="board" class="grid">Загрузка хаоса...</div>
 
     <script>
         const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQkJg-ateJ916_iAnG4ZUigWnVAh5Rhm0j7wutgrkf2Kl71EIckZiuwcZ4rvs8qEqTqfFEJHwaMdyZc/pub?output=csv";
 
         async function update() {
             try {
-                const res = await fetch(sheetUrl + "&cache=" + Math.random());
+                const res = await fetch(sheetUrl + "&t=" + Math.random());
                 const text = await res.text();
                 const rows = text.split('\n').map(r => r.split(',').map(c => c.replace(/"/g, '').trim()));
                 
                 let html = "";
+                const sizes = ['size-s', 'size-m', 'size-l'];
+                const fonts = ['Impact', 'Courier New', 'Georgia', 'Arial Black', 'Verdana'];
+
                 for (let i = 1; i <= 12; i++) {
-                    const row = rows[i];
-                    if (row && row.length >= 2) {
-                        const name = row[1] || "---";
-                        const price = row[2] || "0";
-                        const img = row[3] || "";
+                    if (rows[i] && rows[i][1]) {
+                        const s = sizes[Math.floor(Math.random() * sizes.length)];
+                        const c = Math.floor(Math.random() * 8) + 1;
+                        const f = fonts[Math.floor(Math.random() * fonts.length)];
+                        const rot = (Math.random() * 6 - 3).toFixed(1); // наклон от -3 до 3 градусов
+                        
                         html += `
-                        <div class="card" id="c${i}">
+                        <div class="card ${s} bg-${c}" id="c${i}" style="--r: ${rot}">
                             <div class="img-container">
-                                <img src="${img}" onerror="this.src='https://via.placeholder.com/300x300/111/ffcc00?text=%3F'">
+                                <img src="${rows[i][3]}" onerror="this.src='https://via.placeholder.com/200?text=No+Photo'">
                             </div>
-                            <div class="name">${name}</div>
-                            <div class="price-tag">${price} €</div>
+                            <div class="name" style="font-family: ${f}; font-size: ${Math.random()*(2-1)+1.2}vw">${rows[i][1]}</div>
+                            <div class="price">${rows[i][2]} €</div>
                         </div>`;
                     }
                 }
                 document.getElementById("board").innerHTML = html;
-            } catch (e) { document.getElementById("loader").innerText = "ОШИБКА СЕТИ"; }
+            } catch (e) { }
         }
 
         let cur = 1;
@@ -134,10 +104,10 @@
                 if (a) a.classList.add('active');
                 cur = (cur % cards.length) + 1;
             }
-        }, 4000);
+        }, 3000);
 
         update();
-        setInterval(update, 20000);
+        setInterval(update, 30000);
     </script>
 </body>
 </html>
